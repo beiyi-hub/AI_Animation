@@ -1,714 +1,891 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Animation Studio</title>
-<style>
-  /* ── Reset & Base ── */
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Animation Studio</title>
+  <style>
+    /* ── Reset & Base ── */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  :root {
-    --bg-primary: #0a0a1a;
-    --bg-secondary: #111128;
-    --bg-card: #16163a;
-    --neon-blue: #00d4ff;
-    --neon-purple: #b44aff;
-    --neon-pink: #ff3ea5;
-    --neon-green: #39ff9e;
-    --text-primary: #e0e0f0;
-    --text-secondary: #8888bb;
-    --glow-blue: 0 0 20px rgba(0, 212, 255, 0.3);
-    --glow-purple: 0 0 20px rgba(180, 74, 255, 0.3);
-    --border-glow: 0 0 10px rgba(0, 212, 255, 0.15);
-    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+    :root {
+      --bg-primary: #0a0a1a;
+      --bg-secondary: #111128;
+      --bg-card: #16163a;
+      --neon-blue: #00d4ff;
+      --neon-purple: #b44aff;
+      --neon-pink: #ff3ea5;
+      --neon-green: #39ff9e;
+      --text-primary: #e0e0f0;
+      --text-secondary: #8888bb;
+      --glow-blue: 0 0 20px rgba(0, 212, 255, 0.3);
+      --glow-purple: 0 0 20px rgba(180, 74, 255, 0.3);
+      --border-glow: 0 0 10px rgba(0, 212, 255, 0.15);
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-  html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    min-height: 100vh;
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
 
-  /* ── Animated Background ── */
-  .bg-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    overflow: hidden;
-    z-index: -1;
-    pointer-events: none;
-  }
-  .bg-canvas .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    animation: orbFloat 20s ease-in-out infinite;
-    opacity: 0.15;
-  }
-  .bg-canvas .orb:nth-child(1) {
-    width: 600px; height: 600px;
-    background: var(--neon-blue);
-    top: -10%; left: -10%;
-    animation-duration: 25s;
-  }
-  .bg-canvas .orb:nth-child(2) {
-    width: 500px; height: 500px;
-    background: var(--neon-purple);
-    bottom: -10%; right: -10%;
-    animation-duration: 20s;
-    animation-delay: -5s;
-  }
-  .bg-canvas .orb:nth-child(3) {
-    width: 300px; height: 300px;
-    background: var(--neon-pink);
-    top: 50%; left: 50%;
-    animation-duration: 18s;
-    animation-delay: -10s;
-  }
+    /* ── Animated Background ── */
+    .bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+      pointer-events: none;
+    }
 
-  @keyframes orbFloat {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(100px, -80px) scale(1.1); }
-    50% { transform: translate(-60px, 120px) scale(0.9); }
-    75% { transform: translate(80px, 60px) scale(1.05); }
-  }
+    .bg-canvas .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: orbFloat 20s ease-in-out infinite;
+      opacity: 0.15;
+    }
 
-  /* ── Stars grid ── */
-  .stars {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: -1;
-    pointer-events: none;
-  }
-  .star {
-    position: absolute;
-    width: 2px; height: 2px;
-    background: #fff;
-    border-radius: 50%;
-    animation: twinkle var(--dur, 3s) ease-in-out infinite alternate;
-    opacity: 0.3;
-  }
-  @keyframes twinkle {
-    0% { opacity: 0.1; transform: scale(0.8); }
-    100% { opacity: 0.8; transform: scale(1.2); }
-  }
+    .bg-canvas .orb:nth-child(1) {
+      width: 600px;
+      height: 600px;
+      background: var(--neon-blue);
+      top: -10%;
+      left: -10%;
+      animation-duration: 25s;
+    }
 
-  /* ── Container ── */
-  .container {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 40px 24px 80px;
-  }
+    .bg-canvas .orb:nth-child(2) {
+      width: 500px;
+      height: 500px;
+      background: var(--neon-purple);
+      bottom: -10%;
+      right: -10%;
+      animation-duration: 20s;
+      animation-delay: -5s;
+    }
 
-  /* ── Header ── */
-  header {
-    text-align: center;
-    padding: 60px 0 40px;
-    position: relative;
-    animation: fadeInDown 1s ease-out;
-  }
+    .bg-canvas .orb:nth-child(3) {
+      width: 300px;
+      height: 300px;
+      background: var(--neon-pink);
+      top: 50%;
+      left: 50%;
+      animation-duration: 18s;
+      animation-delay: -10s;
+    }
 
-  header .logo-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
-    display: inline-block;
-    animation: pulseGlow 3s ease-in-out infinite;
-    filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.3));
-  }
+    @keyframes orbFloat {
 
-  @keyframes pulseGlow {
-    0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2)); }
-    50% { filter: drop-shadow(0 0 40px rgba(0, 212, 255, 0.5)); }
-  }
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
 
-  header h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-    text-shadow: none;
-    position: relative;
-  }
+      25% {
+        transform: translate(100px, -80px) scale(1.1);
+      }
 
-  header h1::after {
-    content: '';
-    position: absolute;
-    bottom: -4px; left: 50%;
-    transform: translateX(-50%);
-    width: 120px; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
-    border-radius: 2px;
-  }
+      50% {
+        transform: translate(-60px, 120px) scale(0.9);
+      }
 
-  header .subtitle {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    margin-top: 16px;
-    letter-spacing: 4px;
-    font-weight: 300;
-  }
+      75% {
+        transform: translate(80px, 60px) scale(1.05);
+      }
+    }
 
-  header .subtitle .emoji-deco {
-    display: inline-block;
-    animation: bounceEmoji 2s ease-in-out infinite;
-  }
+    /* ── Stars grid ── */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
 
-  @keyframes bounceEmoji {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--dur, 3s) ease-in-out infinite alternate;
+      opacity: 0.3;
+    }
 
-  /* ── Description ── */
-  .description {
-    background: linear-gradient(135deg, rgba(22, 22, 58, 0.8), rgba(17, 17, 40, 0.9));
-    border: 1px solid rgba(0, 212, 255, 0.15);
-    border-radius: 16px;
-    padding: 28px 32px;
-    margin-bottom: 40px;
-    backdrop-filter: blur(10px);
-    animation: fadeInUp 1s ease-out 0.2s both;
-    position: relative;
-    overflow: hidden;
-  }
+    @keyframes twinkle {
+      0% {
+        opacity: 0.1;
+        transform: scale(0.8);
+      }
 
-  .description::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 3px;
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
-  }
+      100% {
+        opacity: 0.8;
+        transform: scale(1.2);
+      }
+    }
 
-  .description p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.8;
-  }
-  .description p:first-child {
-    color: var(--text-primary);
-    font-size: 1.05rem;
-    margin-bottom: 8px;
-  }
-  .description .stats-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 12px;
-    background: rgba(0, 212, 255, 0.08);
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: var(--neon-blue);
-  }
-  .description .stats-badge span { font-weight: 700; }
+    /* ── Container ── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
 
-  /* ── Category Section ── */
-  .categories {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    animation: fadeInUp 1s ease-out 0.4s both;
-  }
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 60px 0 40px;
+      position: relative;
+      animation: fadeInDown 1s ease-out;
+    }
 
-  .category {
-    background: linear-gradient(135deg, rgba(22, 22, 58, 0.6), rgba(17, 17, 40, 0.7));
-    border: 1px solid rgba(0, 212, 255, 0.08);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all var(--transition);
-    backdrop-filter: blur(8px);
-  }
+    header .logo-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      display: inline-block;
+      animation: pulseGlow 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.3));
+    }
 
-  .category:hover {
-    border-color: rgba(0, 212, 255, 0.25);
-    box-shadow: var(--border-glow);
-    transform: translateX(4px);
-  }
+    @keyframes pulseGlow {
 
-  .category-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    cursor: pointer;
-    user-select: none;
-    gap: 12px;
-    transition: background var(--transition);
-  }
+      0%,
+      100% {
+        filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2));
+      }
 
-  .category-header:hover {
-    background: rgba(0, 212, 255, 0.03);
-  }
+      50% {
+        filter: drop-shadow(0 0 40px rgba(0, 212, 255, 0.5));
+      }
+    }
 
-  .category-header .left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-width: 0;
-  }
+    header h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      text-shadow: none;
+      position: relative;
+    }
 
-  .category-header .icon {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    flex-shrink: 0;
-    background: rgba(0, 212, 255, 0.06);
-    border: 1px solid rgba(0, 212, 255, 0.1);
-    transition: var(--transition);
-  }
-  .category:hover .icon { border-color: rgba(0, 212, 255, 0.3); }
+    header h1::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
+      border-radius: 2px;
+    }
 
-  .category-header .name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .category-header .name-en {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 400;
-  }
+    header .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-top: 16px;
+      letter-spacing: 4px;
+      font-weight: 300;
+    }
 
-  .category-header .count {
-    font-size: 0.78rem;
-    color: var(--neon-blue);
-    background: rgba(0, 212, 255, 0.08);
-    border: 1px solid rgba(0, 212, 255, 0.15);
-    padding: 2px 12px;
-    border-radius: 12px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
+    header .subtitle .emoji-deco {
+      display: inline-block;
+      animation: bounceEmoji 2s ease-in-out infinite;
+    }
 
-  .category-header .arrow {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    transition: transform var(--transition);
-    flex-shrink: 0;
-  }
-  .category.open .arrow { transform: rotate(180deg); color: var(--neon-blue); }
+    @keyframes bounceEmoji {
 
-  /* ── File List ── */
-  .file-list {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.3s ease;
-    opacity: 0;
-  }
-  .category.open .file-list {
-    max-height: 2000px;
-    opacity: 1;
-  }
+      0%,
+      100% {
+        transform: translateY(0);
+      }
 
-  .file-list-inner {
-    padding: 0 20px 16px 74px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+      50% {
+        transform: translateY(-6px);
+      }
+    }
 
-  .file-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: 6px;
-    color: var(--text-secondary);
-    font-size: 0.88rem;
-    text-decoration: none;
-    transition: all var(--transition);
-    position: relative;
-  }
+    /* ── Description ── */
+    .description {
+      background: linear-gradient(135deg, rgba(22, 22, 58, 0.8), rgba(17, 17, 40, 0.9));
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 1s ease-out 0.2s both;
+      position: relative;
+      overflow: hidden;
+    }
 
-  .file-item::before {
-    content: '▸';
-    color: var(--neon-blue);
-    font-size: 0.7rem;
-    opacity: 0.5;
-    transition: var(--transition);
-  }
+    .description::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+    }
 
-  .file-item:hover {
-    color: var(--text-primary);
-    background: rgba(0, 212, 255, 0.05);
-    padding-left: 14px;
-  }
-  .file-item:hover::before {
-    opacity: 1;
-    transform: translateX(2px);
-  }
+    .description p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
 
-  .file-item .file-icon {
-    font-size: 0.9rem;
-    flex-shrink: 0;
-  }
-  .file-item .file-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    .description p:first-child {
+      color: var(--text-primary);
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
 
-  /* ── Color-coded category icons ── */
-  .cat-demos .icon { color: var(--neon-blue); border-color: rgba(0,212,255,0.2); }
-  .cat-ai-ml .icon { color: var(--neon-purple); border-color: rgba(180,74,255,0.2); }
-  .cat-ppt .icon { color: #ff6b6b; border-color: rgba(255,107,107,0.2); }
-  .cat-ppt2 .icon { color: #ffa94d; border-color: rgba(255,169,77,0.2); }
-  .cat-bg .icon { color: var(--neon-green); border-color: rgba(57,255,158,0.2); }
-  .cat-packet .icon { color: #ffd43b; border-color: rgba(255,212,59,0.2); }
-  .cat-dhcp .icon { color: #74c0fc; border-color: rgba(116,192,252,0.2); }
-  .cat-geometry .icon { color: #da77f2; border-color: rgba(218,119,242,0.2); }
-  .cat-experiments .icon { color: #f783ac; border-color: rgba(247,131,172,0.2); }
-  .cat-education .icon { color: #69db7c; border-color: rgba(105,219,124,0.2); }
+    .description .stats-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: var(--neon-blue);
+    }
 
-  /* ── Footer ── */
-  footer {
-    text-align: center;
-    margin-top: 60px;
-    padding: 30px 0 20px;
-    border-top: 1px solid rgba(0, 212, 255, 0.06);
-    animation: fadeInUp 1s ease-out 0.6s both;
-  }
+    .description .stats-badge span {
+      font-weight: 700;
+    }
 
-  footer .github-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 28px;
-    border-radius: 30px;
-    background: rgba(0, 212, 255, 0.05);
-    border: 1px solid rgba(0, 212, 255, 0.15);
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: all var(--transition);
-  }
+    /* ── Category Section ── */
+    .categories {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeInUp 1s ease-out 0.4s both;
+    }
 
-  footer .github-link:hover {
-    color: var(--neon-blue);
-    border-color: rgba(0, 212, 255, 0.4);
-    box-shadow: var(--glow-blue);
-    background: rgba(0, 212, 255, 0.08);
-    transform: translateY(-2px);
-  }
+    .category {
+      background: linear-gradient(135deg, rgba(22, 22, 58, 0.6), rgba(17, 17, 40, 0.7));
+      border: 1px solid rgba(0, 212, 255, 0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all var(--transition);
+      backdrop-filter: blur(8px);
+    }
 
-  footer .github-link svg {
-    width: 20px; height: 20px;
-    fill: currentColor;
-  }
+    .category:hover {
+      border-color: rgba(0, 212, 255, 0.25);
+      box-shadow: var(--border-glow);
+      transform: translateX(4px);
+    }
 
-  footer .footer-meta {
-    margin-top: 16px;
-    font-size: 0.8rem;
-    color: rgba(136, 136, 187, 0.4);
-    letter-spacing: 1px;
-  }
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      gap: 12px;
+      transition: background var(--transition);
+    }
 
-  footer .footer-meta .hearts {
-    color: var(--neon-pink);
-    animation: heartbeat 1.5s ease-in-out infinite;
-    display: inline-block;
-  }
+    .category-header:hover {
+      background: rgba(0, 212, 255, 0.03);
+    }
 
-  @keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-  }
+    .category-header .left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
 
-  /* ── Animations ── */
-  @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+    .category-header .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      background: rgba(0, 212, 255, 0.06);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      transition: var(--transition);
+    }
 
-  /* ── Responsive ── */
-  @media (max-width: 640px) {
-    .container { padding: 20px 16px 60px; }
-    header { padding: 40px 0 24px; }
-    header h1 { font-size: 2rem; }
-    header .logo-icon { font-size: 48px; }
-    header .subtitle { font-size: 0.9rem; letter-spacing: 2px; }
-    .description { padding: 20px; }
-    .category-header { padding: 14px 16px; }
-    .file-list-inner { padding-left: 60px; padding-right: 16px; }
-    .category-header .icon { width: 34px; height: 34px; font-size: 1.1rem; }
-  }
-</style>
+    .category:hover .icon {
+      border-color: rgba(0, 212, 255, 0.3);
+    }
+
+    .category-header .name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .category-header .name-en {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .category-header .count {
+      font-size: 0.78rem;
+      color: var(--neon-blue);
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      padding: 2px 12px;
+      border-radius: 12px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .category-header .arrow {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: transform var(--transition);
+      flex-shrink: 0;
+    }
+
+    .category.open .arrow {
+      transform: rotate(180deg);
+      color: var(--neon-blue);
+    }
+
+    /* ── File List ── */
+    .file-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .category.open .file-list {
+      max-height: 2000px;
+      opacity: 1;
+    }
+
+    .file-list-inner {
+      padding: 0 20px 16px 74px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .file-item::before {
+      content: '▸';
+      color: var(--neon-blue);
+      font-size: 0.7rem;
+      opacity: 0.5;
+      transition: var(--transition);
+    }
+
+    .file-item:hover {
+      color: var(--text-primary);
+      background: rgba(0, 212, 255, 0.05);
+      padding-left: 14px;
+    }
+
+    .file-item:hover::before {
+      opacity: 1;
+      transform: translateX(2px);
+    }
+
+    .file-item .file-icon {
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .file-item .file-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Color-coded category icons ── */
+    .cat-demos .icon {
+      color: var(--neon-blue);
+      border-color: rgba(0, 212, 255, 0.2);
+    }
+
+    .cat-ai-ml .icon {
+      color: var(--neon-purple);
+      border-color: rgba(180, 74, 255, 0.2);
+    }
+
+    .cat-ppt .icon {
+      color: #ff6b6b;
+      border-color: rgba(255, 107, 107, 0.2);
+    }
+
+    .cat-ppt2 .icon {
+      color: #ffa94d;
+      border-color: rgba(255, 169, 77, 0.2);
+    }
+
+    .cat-bg .icon {
+      color: var(--neon-green);
+      border-color: rgba(57, 255, 158, 0.2);
+    }
+
+    .cat-packet .icon {
+      color: #ffd43b;
+      border-color: rgba(255, 212, 59, 0.2);
+    }
+
+    .cat-dhcp .icon {
+      color: #74c0fc;
+      border-color: rgba(116, 192, 252, 0.2);
+    }
+
+    .cat-geometry .icon {
+      color: #da77f2;
+      border-color: rgba(218, 119, 242, 0.2);
+    }
+
+    .cat-experiments .icon {
+      color: #f783ac;
+      border-color: rgba(247, 131, 172, 0.2);
+    }
+
+    .cat-education .icon {
+      color: #69db7c;
+      border-color: rgba(105, 219, 124, 0.2);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding: 30px 0 20px;
+      border-top: 1px solid rgba(0, 212, 255, 0.06);
+      animation: fadeInUp 1s ease-out 0.6s both;
+    }
+
+    footer .github-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 28px;
+      border-radius: 30px;
+      background: rgba(0, 212, 255, 0.05);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all var(--transition);
+    }
+
+    footer .github-link:hover {
+      color: var(--neon-blue);
+      border-color: rgba(0, 212, 255, 0.4);
+      box-shadow: var(--glow-blue);
+      background: rgba(0, 212, 255, 0.08);
+      transform: translateY(-2px);
+    }
+
+    footer .github-link svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    footer .footer-meta {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: rgba(136, 136, 187, 0.4);
+      letter-spacing: 1px;
+    }
+
+    footer .footer-meta .hearts {
+      color: var(--neon-pink);
+      animation: heartbeat 1.5s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    @keyframes heartbeat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+      }
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .container {
+        padding: 20px 16px 60px;
+      }
+
+      header {
+        padding: 40px 0 24px;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+
+      header .logo-icon {
+        font-size: 48px;
+      }
+
+      header .subtitle {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+      }
+
+      .description {
+        padding: 20px;
+      }
+
+      .category-header {
+        padding: 14px 16px;
+      }
+
+      .file-list-inner {
+        padding-left: 60px;
+        padding-right: 16px;
+      }
+
+      .category-header .icon {
+        width: 34px;
+        height: 34px;
+        font-size: 1.1rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- Animated Background -->
-<div class="bg-canvas">
-  <div class="orb"></div>
-  <div class="orb"></div>
-  <div class="orb"></div>
-</div>
+  <!-- Animated Background -->
+  <div class="bg-canvas">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
 
-<div class="stars" id="stars"></div>
+  <div class="stars" id="stars"></div>
 
-<div class="container">
+  <div class="container">
 
-  <!-- Header -->
-  <header>
-    <div class="logo-icon">✨</div>
-    <h1>AI Animation Studio</h1>
-    <p class="subtitle">
-      <span class="emoji-deco">🎬</span>
-      AI 生成 HTML 动画演示集合
-      <span class="emoji-deco">🌈</span>
-    </p>
-  </header>
+    <!-- Header -->
+    <header>
+      <div class="logo-icon">✨</div>
+      <h1>AI Animation Studio</h1>
+      <p class="subtitle">
+        <span class="emoji-deco">🎬</span>
+        AI 生成 HTML 动画演示集合
+        <span class="emoji-deco">🌈</span>
+      </p>
+    </header>
 
-  <!-- Description -->
-  <section class="description">
-    <p>🤖 欢迎来到 AI Animation Studio！</p>
-    <p>
-      这里汇集了由 AI 辅助生成的各种 HTML/CSS/JavaScript 动画与交互演示，
-      涵盖网络协议可视化、AI/ML 概念图解、PPT 模板、背景特效等丰富类别。
-      每个页面都是一次 AI 与创意碰撞的实验成果，为学习和演示而生 ✨
-    </p>
-    <div class="stats-badge">
-      <span>📁</span>
-      <span><span id="totalCats">0</span> 个分类 · <span id="totalFiles">0</span> 个动画文件</span>
-    </div>
-  </section>
+    <!-- Description -->
+    <section class="description">
+      <p>🤖 欢迎来到 AI Animation Studio！</p>
+      <p>
+        这里汇集了由 AI 辅助生成的各种 HTML/CSS/JavaScript 动画与交互演示，
+        涵盖网络协议可视化、AI/ML 概念图解、PPT 模板、背景特效等丰富类别。
+        每个页面都是一次 AI 与创意碰撞的实验成果，为学习和演示而生 ✨
+      </p>
+      <div class="stats-badge">
+        <span>📁</span>
+        <span><span id="totalCats">0</span> 个分类 · <span id="totalFiles">0</span> 个动画文件</span>
+      </div>
+    </section>
 
-  <!-- Categories -->
-  <section class="categories" id="categories"></section>
+    <!-- Categories -->
+    <section class="categories" id="categories"></section>
 
-  <!-- Footer -->
-  <footer>
-    <a class="github-link" href="https://github.com/beiyi-hub/AI_Animation" target="_blank" rel="noopener">
-      <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      GitHub 仓库 · beiyi-hub/AI_Animation
-    </a>
-    <p class="footer-meta">
-      Made with <span class="hearts">❤</span> by AI · 2025
-    </p>
-  </footer>
+    <!-- Footer -->
+    <footer>
+      <a class="github-link" href="https://github.com/beiyi-hub/AI_Animation" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16">
+          <path
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+        </svg>
+        GitHub 仓库 · beiyi-hub/AI_Animation
+      </a>
+      <p class="footer-meta">
+        Made with <span class="hearts">❤</span> by AI · 2025
+      </p>
+    </footer>
 
-</div>
+  </div>
 
-<script>
-// ── Data ──
-const categories = [
-  {
-    id: 'demos',
-    name: '独立动画演示',
-    nameEn: 'Demos',
-    icon: '🎯',
-    cls: 'cat-demos',
-    dir: 'web_animation/demos/',
-    files: [
-      '3D - demonstrate.html',
-      'AI_Animation.html',
-      'animation.html',
-      'ethernet-frame-animated.html',
-      'HTTPS.html',
-      'ipv4_datagram.html',
-      'ipv4_datagram - 3d.html',
-      'ppp_frame_complete.html',
-      'router-routing-table-animated.html',
-      'switch-mac-table-animated.html',
-      'tcp-visualization.html'
-    ]
-  },
-  {
-    id: 'ai-ml',
-    name: 'AI/ML 概念演示',
-    nameEn: 'AI & Machine Learning',
-    icon: '🧠',
-    cls: 'cat-ai-ml',
-    dir: 'web_animation/ai-ml/',
-    files: [
-      'Comprehension.html',
-      'Cross-modal disentanglement - 2.html',
-      'GPU.html',
-      'GRU Introduce.html',
-      'LSTM-1.html',
-      'LSTM Introduce.html',
-      'MLP.html',
-      'onehot.html',
-      'onehot-drawback.html',
-      'RNN.html',
-      'RNN-2.html',
-      'RNN-3.html',
-      'RNN-4.html',
-      'RNN-5.html',
-      'RNN-6.html',
-      'RNN-7.html',
-      'The fatal flaw of DNN.html',
-      'word2vec-1.html'
-    ]
-  },
-  {
-    id: 'ppt-templates',
-    name: 'PPT 风格模板',
-    nameEn: 'PPT Templates',
-    icon: '📊',
-    cls: 'cat-ppt',
-    dir: 'web_animation/PPT%20Template/',
-    files: [
-      'PPT cover page.html',
-      'PPT-Generate-1.html',
-      'PPT-Generate-2.html',
-      'PPT-Generate-3.html',
-      'PPT-Generate-4.html'
-    ]
-  },
-  {
-    id: 'ppt-templates-level2',
-    name: 'PPT 进阶模板',
-    nameEn: 'PPT Templates Level 2',
-    icon: '📈',
-    cls: 'cat-ppt2',
-    dir: 'web_animation/PPT%20Template-level2/',
-    files: [
-      '1.html', '2.html',
-      '3-1.html', '3-2.html', '3-3.html',
-      '4-1.html', '4-2.html', '4-3.html',
-      '5-1.html', '5-2.html', '5-3.html', '5-4.html',
-      '6-1.html', '6-2.html', '6-3.html', '6-4.html',
-      '7-1.html', '7-2.html', '7-3.html', '7-4.html',
-      '8-1.html', '8-2.html', '8-3.html',
-      '9-1.html', '9-2.html', '9-3.html'
-    ]
-  },
-  {
-    id: 'backgrounds',
-    name: '背景样式',
-    nameEn: 'Backgrounds',
-    icon: '🎨',
-    cls: 'cat-bg',
-    dir: 'web_animation/BG/',
-    files: [
-      '3D.html',
-      'background.html',
-      'BG6.html',
-      'BG6 - white.html',
-      'BG7.html',
-      'glasses.html',
-      'light spot.html'
-    ]
-  },
-  {
-    id: 'catch-the-packet',
-    name: '数据包捕获',
-    nameEn: 'Catch the Packet',
-    icon: '📡',
-    cls: 'cat-packet',
-    dir: 'web_animation/catch%20the%20packet/',
-    files: [
-      'catch the packet(telnet).html'
-    ]
-  },
-  {
-    id: 'dhcp',
-    name: 'DHCP 协议演示',
-    nameEn: 'DHCP Protocol',
-    icon: '🌐',
-    cls: 'cat-dhcp',
-    dir: 'web_animation/DHCP/',
-    files: [
-      'dhcp-acknowledgment.html',
-      'dhcp-attack-demo.html',
-      'dhcp-demo.html',
-      'dhcp-discover.html',
-      'dhcp-offer-demo-v1-enhanced.html',
-      'dhcp-offer-packet-animated.html',
-      'dhcp-request.html'
-    ]
-  },
-  {
-    id: 'geometry',
-    name: '几何图形',
-    nameEn: 'Geometry',
-    icon: '🔷',
-    cls: 'cat-geometry',
-    dir: 'web_animation/geometry/',
-    files: [
-      '几何图形生成器 - 牛马工具库.html'
-    ]
-  },
-  {
-    id: 'experiments',
-    name: '实验性 Demo',
-    nameEn: 'Experiments',
-    icon: '🧪',
-    cls: 'cat-experiments',
-    dir: 'web_animation/nice%20try/',
-    files: [
-      '1.html', '2.html', '3.html', '4.html', '5.html'
-    ]
-  },
-  {
-    id: 'education-only',
-    name: '教育演示',
-    nameEn: 'Education Only',
-    icon: '📚',
-    cls: 'cat-education',
-    dir: 'web_animation/%23education-only/',
-    files: [
-      'README.md'
-    ]
-  }
-];
+  <script>
+    // ── Data ──
+    const categories = [
+      {
+        id: 'demos',
+        name: '独立动画演示',
+        nameEn: 'Demos',
+        icon: '🎯',
+        cls: 'cat-demos',
+        dir: 'web_animation/demos/',
+        files: [
+          '3D - demonstrate.html',
+          'AI_Animation.html',
+          'animation.html',
+          'ethernet-frame-animated.html',
+          'HTTPS.html',
+          'ipv4_datagram.html',
+          'ipv4_datagram - 3d.html',
+          'ppp_frame_complete.html',
+          'router-routing-table-animated.html',
+          'switch-mac-table-animated.html',
+          'tcp-visualization.html'
+        ]
+      },
+      {
+        id: 'AI_Model',
+        name: 'AI/ML 概念演示',
+        nameEn: 'AI & Machine Learning',
+        icon: '🧠',
+        cls: 'cat-ai-ml',
+        dir: 'web_animation/AI_Model/',
+        files: [
+          'Comprehension.html',
+          'Cross-modal disentanglement - 2.html',
+          'GPU.html',
+          'GRU Introduce.html',
+          'LSTM-1.html',
+          'LSTM Introduce.html',
+          'MLP.html',
+          'onehot.html',
+          'onehot-drawback.html',
+          'RNN.html',
+          'RNN-2.html',
+          'RNN-3.html',
+          'RNN-4.html',
+          'RNN-5.html',
+          'RNN-6.html',
+          'RNN-7.html',
+          'The fatal flaw of DNN.html',
+          'word2vec-1.html'
+        ]
+      },
+      {
+        id: 'ppt-templates',
+        name: 'PPT 风格模板',
+        nameEn: 'PPT Templates',
+        icon: '📊',
+        cls: 'cat-ppt',
+        dir: 'web_animation/PPT_Template/',
+        files: [
+          'PPT cover page.html',
+          'PPT-Generate-1.html',
+          'PPT-Generate-2.html',
+          'PPT-Generate-3.html',
+          'PPT-Generate-4.html'
+        ]
+      },
+      {
+        id: 'ppt-templates-level2',
+        name: 'PPT 进阶模板',
+        nameEn: 'PPT Templates Level 2',
+        icon: '📈',
+        cls: 'cat-ppt2',
+        dir: 'web_animation/PPT_Template-level2/',
+        files: [
+          '1.html', '2.html',
+          '3-1.html', '3-2.html', '3-3.html',
+          '4-1.html', '4-2.html', '4-3.html',
+          '5-1.html', '5-2.html', '5-3.html', '5-4.html',
+          '6-1.html', '6-2.html', '6-3.html', '6-4.html',
+          '7-1.html', '7-2.html', '7-3.html', '7-4.html',
+          '8-1.html', '8-2.html', '8-3.html',
+          '9-1.html', '9-2.html', '9-3.html'
+        ]
+      },
+      {
+        id: 'backgrounds',
+        name: '背景样式',
+        nameEn: 'Backgrounds',
+        icon: '🎨',
+        cls: 'cat-bg',
+        dir: 'web_animation/BG/',
+        files: [
+          '3D.html',
+          'background.html',
+          'BG6.html',
+          'BG6 - white.html',
+          'BG7.html',
+          'glasses.html',
+          'light spot.html'
+        ]
+      },
+      {
+        id: 'catch-the-packet',
+        name: '数据包捕获',
+        nameEn: 'Catch the Packet',
+        icon: '📡',
+        cls: 'cat-packet',
+        dir: 'web_animation/catch_the_packet/',
+        files: [
+          'catch the packet(telnet).html'
+        ]
+      },
+      {
+        id: 'dhcp',
+        name: 'DHCP 协议演示',
+        nameEn: 'DHCP Protocol',
+        icon: '🌐',
+        cls: 'cat-dhcp',
+        dir: 'web_animation/DHCP/',
+        files: [
+          'dhcp-acknowledgment.html',
+          'dhcp-attack-demo.html',
+          'dhcp-demo.html',
+          'dhcp-discover.html',
+          'dhcp-offer-demo-v1-enhanced.html',
+          'dhcp-offer-packet-animated.html',
+          'dhcp-request.html'
+        ]
+      },
+      {
+        id: 'geometry',
+        name: '几何图形',
+        nameEn: 'Geometry',
+        icon: '🔷',
+        cls: 'cat-geometry',
+        dir: 'web_animation/geometry/',
+        files: [
+          '几何图形生成器 - 牛马工具库.html'
+        ]
+      },
+      {
+        id: 'experiments',
+        name: '实验性 Demo',
+        nameEn: 'Experiments',
+        icon: '🧪',
+        cls: 'cat-experiments',
+        dir: 'web_animation/nice_try/',
+        files: [
+          '1.html', '2.html', '3.html', '4.html', '5.html'
+        ]
+      },
+      {
+        id: 'education-only',
+        name: '教育演示',
+        nameEn: 'Education Only',
+        icon: '📚',
+        cls: 'cat-education',
+        dir: 'web_animation/#education-only/',
+        files: [
+          'README.md'
+        ]
+      }
+    ];
 
-// ── Generate Stars ──
-(function generateStars() {
-  const container = document.getElementById('stars');
-  const count = 120;
-  for (let i = 0; i < count; i++) {
-    const star = document.createElement('div');
-    star.className = 'star';
-    star.style.left = Math.random() * 100 + '%';
-    star.style.top = Math.random() * 100 + '%';
-    star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
-    star.style.animationDelay = Math.random() * 5 + 's';
-    star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
-    container.appendChild(star);
-  }
-})();
+    // ── Generate Stars ──
+    (function generateStars() {
+      const container = document.getElementById('stars');
+      const count = 120;
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+        star.style.animationDelay = Math.random() * 5 + 's';
+        star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+        container.appendChild(star);
+      }
+    })();
 
-// ── Render Categories ──
-(function renderCategories() {
-  const container = document.getElementById('categories');
-  let totalFiles = 0;
+    // ── Render Categories ──
+    (function renderCategories() {
+      const container = document.getElementById('categories');
+      let totalFiles = 0;
 
-  categories.forEach(cat => {
-    totalFiles += cat.files.length;
+      categories.forEach(cat => {
+        totalFiles += cat.files.length;
 
-    const div = document.createElement('div');
-    div.className = `category ${cat.cls}`;
+        const div = document.createElement('div');
+        div.className = `category ${cat.cls}`;
 
-    const filePaths = cat.files.map(f => {
-      const encodedName = f.replace(/ /g, '%20');
-      return { name: f, path: cat.dir + encodedName };
-    });
+        const filePaths = cat.files.map(f => {
+          const encodedName = f.replace(/ /g, '%20');
+          return { name: f, path: cat.dir + encodedName };
+        });
 
-    div.innerHTML = `
+        div.innerHTML = `
       <div class="category-header" data-target="${cat.id}">
         <div class="left">
           <div class="icon">${cat.icon}</div>
@@ -733,23 +910,24 @@ const categories = [
       </div>
     `;
 
-    container.appendChild(div);
-  });
+        container.appendChild(div);
+      });
 
-  // Update stats
-  document.getElementById('totalCats').textContent = categories.length;
-  document.getElementById('totalFiles').textContent = totalFiles;
+      // Update stats
+      document.getElementById('totalCats').textContent = categories.length;
+      document.getElementById('totalFiles').textContent = totalFiles;
 
-  // ── Toggle Logic ──
-  container.addEventListener('click', (e) => {
-    const header = e.target.closest('.category-header');
-    if (!header) return;
-    const catDiv = header.closest('.category');
-    if (!catDiv) return;
-    catDiv.classList.toggle('open');
-  });
-})();
-</script>
+      // ── Toggle Logic ──
+      container.addEventListener('click', (e) => {
+        const header = e.target.closest('.category-header');
+        if (!header) return;
+        const catDiv = header.closest('.category');
+        if (!catDiv) return;
+        catDiv.classList.toggle('open');
+      });
+    })();
+  </script>
 
 </body>
+
 </html>
