@@ -2,7 +2,7 @@
 
 > 使用 AI 生成 HTML 演示动画的 Prompt 模板集合
 
-[English](README.md) · [Prompts](prompt.md)
+[English](README.md) · [Prompts](prompt.md) · [🎯 在线浏览](index.html)
 
 ---
 
@@ -24,50 +24,26 @@
 ## 目录结构
 
 ```
-AI Animation/
-├── README.md          # 项目说明文档
-├── prompt.md          # Prompt 模板集合（分类整理）
-├── prompt.txt         # 原始 Prompt 文本
-├── LICENSE            # MIT 开源协议
-├── UI/                # UI 设计参考图
+|AI Animation/|
+├── README.md                # 项目说明文档
+├── prompt.md                # Prompt 模板集合（分类整理）
+├── original-prompt.txt      # 原始 Prompt 文本
+├── LICENSE                  # MIT 开源协议
+├── index.html               # 🎯 首页导航（在线浏览入口）
+├── UI/                      # UI 设计参考图
 │   ├── design1.png ~ design6.png
 │   └── timeline.png
-└── web_animation/     # 示例 HTML 动画文件
-    ├── Animation/              # AI/ML 概念演示（RNN、LSTM、Word2Vec、GPU 等）
-    ├── BG/                     # 背景样式模板
-    ├── DHCP/                   # DHCP 协议演示
-    ├── geometry/               # 几何图形演示
-    ├── nice try/               # 实验性 Demo
-    ├── Pirated websites/       # 钓鱼网站演示（仅供安全教育）
-    ├── PPT Template/            # PPT 风格模板（基础版，5 个）
-    │   ├── PPT cover page.html
-    │   ├── PPT-Generate-1.html
-    │   ├── PPT-Generate-2.html
-    │   ├── PPT-Generate-3.html
-    │   └── PPT-Generate-4.html
-    ├── PPT Template-level2/     # PPT 风格模板（进阶版，27 个）
-    │   ├── 1.html ~ 9-3.html  # 多种布局变体
-    │   └── png/                # 模板缩略图
-    ├── catch the packet/       # 数据包捕获演示
-    ├── AI Model/               # AI 模型演示（MLP、RNN、LSTM、GRU）
-    ├── 3D - demonstrate.html
-    ├── AI_Animation.html       # AI-Animation Skill 输出文件
-    ├── Animation/         # AI/ML 概念演示（RNN、LSTM、Word2Vec、GPU 等）
-    ├── Pirated websites/  # 钓鱼网站演示
-    ├── PPT Template/       # PPT 风格模板
-    ├── catch the packet/  # 数据包捕获演示
-    ├── DHCP/              # DHCP 协议演示
-    ├── geometry/           # 几何图形演示
-    ├── 3D - demonstrate.html
-    ├── animation.html
-    ├── ethernet-frame-animated.html
-    ├── HTTPS.html
-    ├── ipv4_datagram.html
-    ├── ipv4_datagram - 3d.html
-    ├── ppp_frame_complete.html
-    ├── router-routing-table-animated.html
-    ├── switch-mac-table-animated.html
-    └── tcp-visualization.html
+└── web_animation/           # 示例 HTML 动画文件
+    ├── demos/               # 独立动画演示（11 个）
+    ├── ai-ml/               # AI/ML 概念演示（18 个）
+    ├── ppt-templates/       # PPT 风格模板（基础版，5 个）
+    ├── PPT Template-level2/ # PPT 风格模板（进阶版，27 个）
+    ├── backgrounds/         # 背景样式模板（7 个）
+    ├── catch-the-packet/    # 数据包捕获演示
+    ├── dhcp/                # DHCP 协议演示
+    ├── geometry/            # 几何图形演示
+    ├── experiments/         # 实验性 Demo
+    └── #education-only/     # 📚 教育演示（仅供安全教学）
 ```
 
 ---
@@ -78,11 +54,12 @@ AI Animation/
 
 ```bash
 # 克隆仓库
-git clone https://github.com/Unclecheng-li/AI_Animation.git
+git clone https://github.com/beiyi-hub/AI_Animation.git
 cd AI_Animation
 
-# 在浏览器中打开任意 .html 文件
-# 使用 ← → 方向键或鼠标滚轮翻页
+# 直接打开 index.html 浏览所有动画
+# 或者打开 web_animation/ 下的任意 .html 文件
+# 使用 ← → 方向键或鼠标滚轮翻页（PPT风格页面）
 ```
 
 ### 方式二：AI 生成新动画
@@ -115,8 +92,8 @@ cd AI_Animation
 | `tcp-visualization.html` | TCP 可视化 | 3D 效果、交互演示 |
 | `ipv4_datagram - 3d.html` | IPv4 数据报 | 3D 旋转、动态展示 |
 | `router-routing-table-animated.html` | 路由表 | 表格动画、路径高亮 |
-| `Animation/RNN-*.html` | RNN 神经网络 | 分步动画、概念可视化 |
-| `Animation/GPU.html` | GPU 架构 | 图形化演示 |
+| `ai-ml/RNN-*.html` | RNN 神经网络 | 分步动画、概念可视化 |
+| `ai-ml/GPU.html` | GPU 架构 | 图形化演示 |
 
 ---
 
