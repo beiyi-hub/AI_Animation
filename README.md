@@ -7,6 +7,8 @@
 ---
 
 ## 项目简介
+
+<img width="1835" height="911" alt="image" src="https://github.com/user-attachments/assets/805224fb-e920-4440-8390-37a56dc66b7d" />
 <img width="2560" height="1440" alt="QQ_1775901765825" src="https://github.com/user-attachments/assets/77ee698e-7e88-43b7-b048-8eed006ed278" />
 <img width="2560" height="1440" alt="QQ_1775901779039" src="https://github.com/user-attachments/assets/e06a3dc6-a57f-40f6-b88b-d4da2c049f45" />
 <img width="2560" height="1440" alt="QQ_1775901789295" src="https://github.com/user-attachments/assets/657be29c-2770-46e2-8780-4d28712e3683" />
@@ -76,6 +78,7 @@ cd AI_Animation
 | [Trae](https://trae.ai/) | 免费，可直接生成 HTML | 快速生成 |
 | Claude | 长上下文，代码质量高 | 复杂动画 |
 | Codex | 图形理解能力强 | UI 重构 |
+| Workbuddy | 免费，上手门槛低 | 开箱即用 |
 
 ### 方式三：UI 参考重构
 
